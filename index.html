@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Courier Tracking Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 450px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+    }
+    button {
+      background: #1677e8;
+      color: white;
+      border: 0;
+      padding: 14px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    #reader { width: 100%; }
+    #status { margin: 15px; }
+    li { text-align: left; padding: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Courier Tracking Scanner</h2>
+    <p>Barcode को कैमरे के सामने रखें</p>
+
+    <div id="reader"></div>
+
+    <p id="status">Scanner शुरू करने के लिए बटन दबाएं</p>
+
+    <button onclick="startScanner()">Start Scanner</button>
+    <button onclick="stopScanner()">Stop Scanner</button>
+
+    <h3>Scanned Tracking IDs</h3>
+    <ol id="results"></ol>
+  </div>
+
+  <script>
+    let scanner;
+    let lastCode = "";
+    let lastTime = 0;
+
+    async function startScanner() {
+      try {
+        if (!scanner) {
+          scanner = new Html5Qrcode("reader");
+        }
+
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 280, height: 150 } },
+          function(decodedText) {
+            const now = Date.now();
+
+            if (decodedText === lastCode &&
+                now - lastTime < 3000) return;
+
+            lastCode = decodedText;
+            lastTime = now;
+
+            document.getElementById("status").innerText =
+              "Scanned: " + decodedText;
+
+            const li = document.createElement("li");
+            li.textContent = decodedText;
+            document.getElementById("results").prepend(li);
+          }
+        );
+
+        document.getElementById("status").innerText =
+          "Camera चालू है - Scan करें";
+      } catch(error) {
+        document.getElementById("status").innerText =
+          "Camera Error: " + error;
+      }
+    }
+
+    async function stopScanner() {
+      if (scanner && scanner.isScanning) {
+        await scanner.stop();
+        document.getElementById("status").innerText =
+          "Scanner बंद है";
+      }
+    }
+  </script>
+</body>
+</html>
