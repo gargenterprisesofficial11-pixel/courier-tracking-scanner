@@ -51,6 +51,7 @@
 
   <script>
     let scanner;
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybkoQKmdklnwK6vEJA1WuMUvJAm7Sfq-YXHYc_2jqtlPnaLeUWvz9VNztcVRe7djuKHA/exec";
     let lastCode = "";
     let lastTime = 0;
 
@@ -78,6 +79,18 @@
             const li = document.createElement("li");
             li.textContent = decodedText;
             document.getElementById("results").prepend(li);
+          
+fetch(GOOGLE_SCRIPT_URL, {
+  method: "POST",
+  mode: "no-cors",
+  headers: {
+    "Content-Type": "text/plain;charset=utf-8"
+  },
+  body: JSON.stringify({
+    trackingId: decodedText
+  })
+});
+
           }
         );
 
