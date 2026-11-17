@@ -39,7 +39,26 @@
     <p>Barcode को कैमरे के सामने रखें</p>
 
     <div id="reader"></div>
+<label for="platform">Select Platform:</label>
 
+<select id="platform" onchange="toggleOtherPlatform()">
+  <option value="">Select Platform</option>
+  <option value="AJIO">AJIO</option>
+  <option value="Myntra">Myntra</option>
+  <option value="Flipkart">Flipkart</option>
+  <option value="Amazon">Amazon</option>
+  <option value="Meesho">Meesho</option>
+  <option value="Snapdeal">Snapdeal</option>
+  <option value="LimeRoad">LimeRoad</option>
+  <option value="Others">Others</option>
+</select>
+
+<input
+  type="text"
+  id="otherPlatform"
+  placeholder="Enter Platform Name"
+  style="display:none;"
+>
     <p id="status">Scanner शुरू करने के लिए बटन दबाएं</p>
 
     <button onclick="startScanner()">Start Scanner</button>
@@ -54,8 +73,25 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybkoQKmdklnwK6vEJA1WuMUvJAm7Sfq-YXHYc_2jqtlPnaLeUWvz9VNztcVRe7djuKHA/exec";
     let lastCode = "";
     let lastTime = 0;
+function toggleOtherPlatform() {
+  const platform = document.getElementById("platform").value;
+  const otherBox = document.getElementById("otherPlatform");
 
+  if (platform === "Others") {
+    otherBox.style.display = "block";
+  } else {
+    otherBox.style.display = "none";
+    otherBox.value = "";
+  }
+}
     async function startScanner() {
+      const selectedPlatform = document.getElementById("platform").value;
+const otherPlatform = document.getElementById("otherPlatform").value.trim();
+
+if (!selectedPlatform || (selectedPlatform === "Others" && !otherPlatform)) {
+  alert("Please select a platform or enter platform name");
+  return;
+}
       try {
         if (!scanner) {
           scanner = new Html5Qrcode("reader");
@@ -87,7 +123,10 @@ fetch(GOOGLE_SCRIPT_URL, {
     "Content-Type": "text/plain;charset=utf-8"
   },
   body: JSON.stringify({
-    trackingId: decodedText
+    trackingId: decodedText,
+platform: document.getElementById("platform").value === "Others"
+  ? document.getElementById("otherPlatform").value.trim()
+  : document.getElementById("platform").value
   })
 });
 
